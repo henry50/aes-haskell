@@ -1,7 +1,7 @@
 import Test.Tasty ( testGroup, defaultMain, TestTree )
 import Test.Tasty.HUnit ( assertEqual, testCase )
 import Types (Byte, KeySchedule, Key, State)
-import Cipher (keyExpansion, cipher, inverseCipher)
+import Cipher (keyExpansion, cipher, invCipher)
 
 -- Appendix A tests
 a1InputKey :: Key
@@ -70,13 +70,13 @@ appendixC = testGroup "Appendix C"
         testCase "Appendix C.1 - 128-bit cipher" $
             assertEqual "States do not match" c1Output (cipher cInput c1InputKey),
         testCase "Appendix C.1 - 128-bit inverse cipher" $
-            assertEqual "States do not match" cInput (inverseCipher c1Output c1InputKey),
+            assertEqual "States do not match" cInput (invCipher c1Output c1InputKey),
         testCase "Appendix C.2 - 192-bit cipher" $
             assertEqual "States do not match" c2Output (cipher cInput c2InputKey),
         testCase "Appendix C.2 - 192-bit inverse cipher" $
-            assertEqual "States do not match" cInput (inverseCipher c2Output c2InputKey),
+            assertEqual "States do not match" cInput (invCipher c2Output c2InputKey),
         testCase "Appendix C.3 - 256-bit cipher" $
             assertEqual "States do not match" c3Output (cipher cInput c3InputKey),
-        testCase "Appendix C.3 - 192-bit inverse cipher" $
-            assertEqual "States do not match" cInput (inverseCipher c3Output c3InputKey)
+        testCase "Appendix C.3 - 256-bit inverse cipher" $
+            assertEqual "States do not match" cInput (invCipher c3Output c3InputKey)
     ]
