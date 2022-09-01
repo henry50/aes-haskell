@@ -2,8 +2,10 @@ module Util where
 import Numeric (showHex, readHex)
 import Data.List (transpose)
 import Data.List.Split (chunksOf)
+import Data.Char (chr)
 
 import Types ( Byte, State ) 
+
 
 -- Chunk a list into a 2d list with items of size 4
 chunk :: [a] -> [[a]]
@@ -44,6 +46,10 @@ fromState = concat . transpose
 -- Convert list of bytes to hex string
 toHex :: [Byte] -> String
 toHex = concatMap (\x -> (if x < 0x10 then "0" else "") ++ showHex x "")
+
+-- Convert list of bytes to actual string
+toString :: [Byte] -> String
+toString = map (chr . fromEnum)
 
 -- Convert a state to hex strings
 stateHex :: State -> [[String]]
