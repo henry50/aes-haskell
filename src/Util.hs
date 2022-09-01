@@ -1,12 +1,32 @@
 module Util where
 import Numeric (showHex, readHex)
-import Data.List ( transpose )
+import Data.List (transpose)
+import Data.List.Split (chunksOf)
 
 import Types ( Byte, State ) 
 
 -- Chunk a list into a 2d list with items of size 4
 chunk :: [a] -> [[a]]
 chunk y =  map (take 4 . flip drop y . (*4)) [0..(length y `div` 4)-1]
+
+-- Convert a list of bytes to a list of states, padding with 0.
+inputChunker :: [Byte] -> [State]
+inputChunker x = map toState $ chunksOf 16 (x ++ getPadding x) where
+    getPadding :: [Byte] -> [Byte]
+    getPadding x = replicate n 0 where
+        a = length x `mod` 16
+        n = if a == 0 then 0 else 16 - a 
+
+outputDeChunker :: [State] -> [Byte]
+outputDeChunker = concatMap fromState
+
+-- Convert hex string to state
+hexToState :: String -> State
+hexToState = toState . fromHex
+
+-- Convert state to hex
+stateToHex :: State -> String
+stateToHex = toHex . fromState
 
 -- Convert hex string WITHOUT SPACES to list of bytes
 fromHex :: String -> [Byte]

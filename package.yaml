@@ -23,6 +23,9 @@ dependencies:
 - base >= 4.7 && < 5
 - tasty
 - tasty-hunit
+- optparse-applicative
+- bytestring
+- split
 
 library:
   source-dirs: src

@@ -110,19 +110,20 @@ genericMixColumns ops = transpose . map mix . transpose where
     mix :: [Byte] -> [Byte]
     mix col = map (foldr xor 0 . flip (zipWith ($)) col) ops
 
+-- The column operations all follow the pattern
+-- a b c d
+-- d a b c
+-- c d a b
+-- b c d a
+-- This function generates the 2d list of operations given its first row.
+generateOperations :: [a] -> [[a]]
+generateOperations x = map (\y -> take 4 $ drop y $ cycle x) [0,3,2,1]
+
 mixColumns :: State -> State
-mixColumns = genericMixColumns
-    [[galoisMultiply 2, galoisMultiply 3, id, id],
-     [id, galoisMultiply 2, galoisMultiply 3, id],
-     [id, id, galoisMultiply 2, galoisMultiply 3],
-     [galoisMultiply 3, id, id, galoisMultiply 2]]
+mixColumns = genericMixColumns $ generateOperations [galoisMultiply 2, galoisMultiply 3, id, id]
 
 invMixColumns :: State -> State
-invMixColumns = genericMixColumns $
-    (map.map) galoisMultiply [[0x0e, 0x0b, 0x0d, 0x09],
-                              [0x09, 0x0e, 0x0b, 0x0d],
-                              [0x0d, 0x09, 0x0e, 0x0b],
-                              [0x0b, 0x0d, 0x09, 0x0e]]
+invMixColumns = genericMixColumns $ generateOperations $ map galoisMultiply [0x0e, 0x0b, 0x0d, 0x09]
 
 -- Multiply two bytes in GF(256)
 galoisMultiply :: Byte -> Byte -> Byte
