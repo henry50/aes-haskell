@@ -13,7 +13,7 @@ import Options.Applicative
       long,
       strOption,
       Alternative((<|>)),
-      Parser )
+      Parser, switch )
 import Data.Semigroup ((<>))
 import Cipher (cipher, invCipher)
 import qualified Data.ByteString as BS (readFile, unpack)
@@ -21,10 +21,9 @@ import Util (fromHex, inputChunker, outputDeChunker, toHex)
 
 data Options = Options {
     key        :: String,
-    input      :: Input
+    input      :: Input,
+    decrypt    :: Bool
 }
-
-data Mode = Encrypt Options | Decrypt Options
 
 -- Input to the program can either be a file or raw input
 data Input = FileInput FilePath | RawInput String deriving Show
@@ -41,7 +40,7 @@ rawInput = RawInput <$> strOption (
     long "raw" <>
     short 'r' <>
     metavar "DATA" <>
-    help "Input raw hexadecimal data")
+    help "Input as hexadecimal string")
 
 inputParser :: Parser Input
 inputParser = fileInput <|> rawInput
@@ -52,25 +51,21 @@ optionParser = Options <$>
         long "key" <>
         short 'k' <>
         metavar "KEY" <>
-        help "The AES key as a hexadecimal string"
-    ) <*> inputParser
-
-
-modeParser :: Parser Mode
-modeParser = hsubparser (
-    command "encrypt" (info (helper <*> (Encrypt <$> optionParser)) (progDesc "Encrypt data")) <>
-    command "decrypt" (info (helper <*> (Decrypt <$> optionParser)) (progDesc "Decrypt data")))
-
-getOpts :: Mode -> Options
-getOpts (Encrypt a) = a
-getOpts (Decrypt a) = a
+        help "Key as a hexadecimal string"
+    ) <*>
+    inputParser <*>
+    switch (
+        long "decrypt" <>
+        short 'd' <>
+        help "Decrypt"
+    )
 
 main :: IO ()
 main = do
     -- Parse args
-    args <- execParser $ info (helper <*> modeParser) (progDesc "poggers")
+    args <- execParser $ info (helper <*> optionParser) (progDesc "128, 192 and 256-bit CBC AES implementation.")
     -- Either get the raw text or read the file
-    states <- case input (getOpts args) of
+    states <- case input args of
             -- Convert raw string to State
             RawInput r -> pure $ inputChunker $ fromHex r
             -- Read the given file as a bytestring, unpack and convert to State
@@ -78,9 +73,9 @@ main = do
                 content <- BS.readFile f
                 pure $ inputChunker $ BS.unpack content
     -- Get key as [Byte]
-    let k = fromHex $ key $ getOpts args
+    let k = fromHex $ key args
     -- Get result
-    let result = case args of
-            Encrypt opts -> map (`cipher` k) states
-            Decrypt opts -> map (`invCipher` k) states
+    let result = if decrypt args
+        then map (`invCipher` k) states
+        else map (`cipher` k) states
     putStrLn $ toHex $ outputDeChunker result
