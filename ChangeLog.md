@@ -8,4 +8,5 @@ and this project adheres to the
 
 ## Unreleased
 
-## 0.1.0.0 - YYYY-MM-DD
+## 1.0 - 2022-09-01
+Initial complete implementation with CLI.
