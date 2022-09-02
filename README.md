@@ -1,6 +1,8 @@
 # AES Haskell
 An implementation of the Advanced Encryption Standard in Haskell.
 
+**This implementation is not cryptographically secure.**
+
 ## Usage
 If you don't have Stack installed, find out how to get it [here](https://docs.haskellstack.org/en/stable/README/).
 
