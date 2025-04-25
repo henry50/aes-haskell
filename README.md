@@ -1,4 +1,8 @@
 # AES Haskell
+
+> [!NOTE]
+> This repository has been moved to https://github.com/henry50/aes/tree/main/aes-haskell
+
 An implementation of the Advanced Encryption Standard in Haskell.
 
 **This implementation is not cryptographically secure.**
